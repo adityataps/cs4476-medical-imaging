@@ -28,20 +28,34 @@
     <div class="proposal_items">
     <h3>Problem Statement</h3>
     <div class="text_indent">
-        text text text text
+        The goal of our project is to create a model, using supervised classification, that is able to identify and diagnose _______ (cardiomegaly?) from an inputted Chest X-ray. 
+        Using our system, someone can input a Chest X-ray of a patient, and our model will predict whether or not the patient has ________ (cardiomegaly?). If the X-ray diagnose
+        is positive, the Chest X-ray will be outputted with a rectangle encasing area of interest (the enlarged heart).
     </div>
     <br><br>
 
+    <!-- Approach
+    Comments: potentially mention some preprocessing we might do on the X-Rays/what pre-processing we might do to an inputted patient image before our model makes a prediction
+    Maybe talk about the steps of the CNN and how it relates to material from class? -->
     <h3>Approach</h3>
-    <div class="text_indent">
-        text text text text
+    <div class="text_indent"> 
+        We will be utilizing supervised learning to detect for features indicative of [our specified diagnosis]. 
+        This will be done by training a convolutional neural network to extract features and classify the input X-Ray images, with a certain confidence, 
+        into the various classes representing each condition. There will be some overlap between classes due to the nature of the dataset used, 
+        but we will choose the class with the highest confidence for a given image with overlapping ground truth.
     </div>
     <br><br>
 
-
+    <!-- Experiment and Results
+    Comments: Mention which software we will be using (TensorFlow and Keras?) and how our work environment will be setup? Not sure if we should just mention Tensor flow for 
+    experimental setup or also include stuff like Github and Trello. Mention what we will implement ourselves
+    What makes our project successful-->
     <h3>Experiments and Results</h3>
     <div class="text_indent">
-        text text text text
+        We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. We will be using TensorFlow.... 
+        Our project will be successful if we can make a model that can diagnose ______ (cardiomegaly?) based on an input Chest X-ray with a accuracy of ___.
+        
+        <br><br>(The NIHCC's dataset can be found at https://nihcc.app.box.com/v/ChestXray-NIHCC)
     </div>
     <br><br>
 
