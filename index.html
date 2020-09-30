@@ -29,11 +29,18 @@
     <h3>Problem Statement</h3>
     <div class="text_indent">
         The goal of our project is to create a model, using supervised classification, that is able to identify and diagnose nodules, masses, 
-        and cardiomegaly from an inputted Chest X-ray. Using our system, someone can input a Chest X-ray of a patient, and our model will predict 
+        and cardiomegaly from an inputted Chest X-ray. A hough transformation and deformable contour will be to then locate the ailment specifically within
+        the X-Ray. Using our system, someone can input a Chest X-ray of a patient, and our model will predict 
         whether or not the patient has a nodule, mass, or cardiomegaly. If the X-ray diagnosis is positive, the Chest X-ray will be outputted with a 
-        rectangle encasing area of interest (the enlarged heart, nodule, or mass).
+        rectangle encasing area of interest (the enlarged heart, nodule, or mass) and the estimated size of the nodule/mass.
     </div>
     <br><br>
+
+    <div class="image_container">
+        <img src="Images\Cardiomegaly_sample.png" alt="Cardiomegaly_sample">
+        <img src="Images\Mass_sample.png" alt="Mass_sample">
+        <img src="Images\Nodule_sample.png" alt="Nodule_sample">
+    </div>
 
     <!-- Approach
     Comments: potentially mention some preprocessing we might do on the X-Rays/what pre-processing we might do to an inputted patient image before our model makes a prediction
@@ -44,7 +51,7 @@
         This will be done by training a convolutional neural network to extract features and classify the input X-Ray images, with a certain confidence, 
         into the various classes representing each condition. There will be some overlap between classes due to the nature of the dataset used, 
         but we will choose the class with the highest confidence for a given image with overlapping ground truth.  
-        The steps of the convolutional neural network will follow the following basic steps: <- include this in approach? <br><br>
+        The steps of the convolutional neural network will follow the following basic steps: <br><br>       
         1. load the data and build the input vectors<br><br>
         2. Normalize the data<br><br>
         3. Build a linear stack and apply convolutional filters?<br><br>
@@ -54,7 +61,9 @@
         if the diagnosis was cardiomegaly (since the heart is always located in the same place). Our approach for identifying nodules 
         and masses would be preprocessing the image to remove noise and unnecessary  features like the rib cage, 
         and then use a generalized hough transformation to locate the where roughly the nodule or mass might be and then applying a 
-        deformable contour to get the more exact boundaries (since the nodules or masses are slightly non-rigid) and potentially calculating the size of the nodule or mass.
+        deformable contour to get the more exact boundaries (since the nodules or masses are slightly non-rigid) and potentially calculating the size of the nodule or mass. 
+        The deformable contour can also serve as a way to double check the accuracy of the results, since both cardiomegaly (enlarged heart) and nodules/masses are dependent on 
+        size in their identification.
 
         <br><br><br><br>
         Potentially include sample images to show what the X-Rays will look like?
@@ -70,7 +79,7 @@
     <div class="text_indent">
         We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. The dataset is prelabeled with the associated thoracic pathology (if any) 
         and identified as training data or testing data. We will be using TensorFlow and Keras to create a convolutional neural network and train it 
-        with the training data and test the accuracy of our model’s predictions with the testing data. As for the hough transformation and deformable contours, 
+        with the training data and validate the accuracy of our model’s predictions with the testing data. As for the hough transformation and deformable contours, 
         we will implement based on the pseudocode from class and outside of class research. Our project will be successful if we can make a model that can diagnose 
         nodules, masses, and cardiomegaly based on any input Chest X-ray with an accuracy of ___ and denote specifically where the ailments were detected within the X-rays. 
         Uncertainties? List of experiments? What will these experiments reveal?
