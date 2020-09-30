@@ -48,28 +48,37 @@
     <h3>Approach</h3>
     <div class="text_indent"> 
         We will be utilizing supervised learning to detect features indicative of a mass, nodule, or cardiomegaly. 
-        This will be done by training a convolutional neural network to extract features and classify the input X-Ray images, with a certain confidence, 
-        into the various classes representing each condition. There will be some overlap between classes due to the nature of the dataset used, 
-        but we will choose the class with the highest confidence for a given image with overlapping ground truth.  
-        The steps of the convolutional neural network will follow the following basic steps: <br><br>       
-        1. load the data and build the input vectors<br><br>
-        2. Normalize the data<br><br>
-        3. Build a linear stack and apply convolutional filters?<br><br>
-        4. Flatten out the output<br><br>
-        5. ...<br><br>
-        The rectangle denoting the area of interest will be created by first applying a deformable contour to roughly the center of the image 
-        if the diagnosis was cardiomegaly (since the heart is always located in the same place). Our approach for identifying nodules 
-        and masses would be preprocessing the image to remove noise and unnecessary  features like the rib cage, 
-        and then use a generalized hough transformation to locate the where roughly the nodule or mass might be and then applying a 
-        deformable contour to get the more exact boundaries (since the nodules or masses are slightly non-rigid) and potentially calculating the size of the nodule or mass. 
-        The deformable contour can also serve as a way to double check the accuracy of the results, since both cardiomegaly (enlarged heart) and nodules/masses are dependent on 
-        size in their identification.
-
-        <br><br><br><br>
-        Potentially include sample images to show what the X-Rays will look like?
+        This will be done by training a convolutional neural network to extract features and classify the input 
+        X-Ray images, with a certain confidence, into the various classes representing each condition. There will 
+        be some overlap between classes due to the nature of the dataset used, but we will choose the class with 
+        the highest confidence for a given image with overlapping ground truth.  <br><br>   
+        The general architecture of our model will consist of the following:
+        <ul>
+            <li>Initial pre-processing within the input layer</li>
+            <li>CheXNet architecture used as a basis for development of hidden layers
+                <ul>
+                    <li>Original network has 121 layers - will be narrowed down proportionally to reflect scope of this project</li>
+                    <li>Original network was trained on 100,000 frontal chest X-Ray images - aim to narrow this down as well 
+                        depending on image choice (uncertain as explained below in the experiment sub-section)</li>
+                </ul>
+            </li>
+            <li>Hough transform after classification for location (except for cardiomegaly detection)</li>
+            <li>Deformable contours to define the boundaries of the ailment</li>
+        </ul><br>
+        The boundary denoting the area of interest will be created by first applying a deformable contour to roughly the 
+        center-right area of the image if the diagnosis was cardiomegaly (since the heart is always located in the same place). 
+        Our approach for identifying nodules and masses would be preprocessing the image to remove noise, and then use a generalized 
+        Hough transformation to locate the roughly where the nodule or mass might be and then applying a deformable contour to get 
+        the more exact boundaries (since the nodules or masses are slightly non-rigid) and potentially calculating the size (area) 
+        of the nodule or mass using the boundary.<br><br>
+        We will be basing the architecture for our network off the CheXNet architecture that has already been built to classify chest X-Rays.<br>
+        Paper authored by: <br>
+        Pranav Rajpurkar, Jeremy Irvin, Kaylie Zhu, Brandon Yang, Hershel Mehta, Tony Duan, Daisy Ding, Aarti Bagul, Curtis Langlotz, Katie Shpanskaya, Matthew P. Lungren, Andrew Y. Ng
+        <br><br>
+        Some sample images with boundaries (in red):
 
     </div>
-    <br><br>
+    <br>
 
     <!-- Experiment and Results
     Comments: Mention which software we will be using (TensorFlow and Keras?) and how our work environment will be setup? Not sure if we should just mention Tensor flow for 
@@ -77,16 +86,32 @@
     What makes our project successful-->
     <h3>Experiments and Results</h3>
     <div class="text_indent">
-        We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. The dataset is prelabeled with the associated thoracic pathology (if any) 
-        and identified as training data or testing data. We will be using TensorFlow and Keras to create a convolutional neural network and train it 
-        with the training data and validate the accuracy of our model’s predictions with the testing data. As for the hough transformation and deformable contours, 
-        we will implement based on the pseudocode from class and outside of class research. Our project will be successful if we can make a model that can diagnose 
-        nodules, masses, and cardiomegaly based on any input Chest X-ray with an accuracy of ___ and denote specifically where the ailments were detected within the X-rays. 
-        Uncertainties? List of experiments? What will these experiments reveal?
+        We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. The dataset is prelabeled with the 
+        associated thoracic pathology (if any) and identified as training data or testing data. We will be using TensorFlow and 
+        Keras to create a convolutional neural network and train it with the training data and test the accuracy of our model’s 
+        predictions with the testing data. As for the Hough transformation and deformable contours, we will implement based on 
+        the pseudocode from class and outside of class research. Our project will be successful if we can make a model that can 
+        diagnose nodules, masses, and cardiomegaly based on any input Chest X-ray with at least 75% accuracy and denote specifically 
+        where the ailments were detected within the X-rays. The measured accuracy will be based on the F1 matrix - a statistical 
+        accuracy measure, typically used for binary classification in machine learning. This metric was used by the CheXNet 
+        architecture cited earlier in this proposal and has been modified to be comparable for multi-classification problems. 
+        Some potential uncertainties would be differentiating between nodules and masses, because of the similarities in the shape 
+        of the two ailments, as well as the specific structure of our neural network; we may also find that one architecture 
+        works better than another in detecting the relevant illnesses. Because the dataset is so large (~112,000) and covers 
+        14 different ailments, we also have to decide which subset of images we will use to better train and test our model. 
+        An experiment we will do is testing different neural network architectures on a smaller subset of our dataset images 
+        and finding out the accuracy of the predictions developed by the different architectures. We could use the results of 
+        this experiment to determine which architectures might work the best with our dataset and goal, which would be valuable 
+        information, since one of our uncertainties is determining which architecture would work best.
         
         <br><br>(The NIHCC's dataset can be found at https://nihcc.app.box.com/v/ChestXray-NIHCC)
     </div>
-    <br><br>
+    <br>
+
+    <h3>Citations</h3>
+    <div class="text_indent">
+        *add citations here*
+    </div>
 
     <br><br>
     </div>
