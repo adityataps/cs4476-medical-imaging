@@ -28,11 +28,26 @@
     <div class="proposal_items">
     <h3>Problem Statement</h3>
     <div class="text_indent">
-        The goal of our project is to create a model, using supervised classification, that is able to identify and diagnose nodules, masses, 
-        and cardiomegaly from an inputted Chest X-ray. A hough transformation and deformable contour will be to then locate the ailment specifically within
-        the X-Ray. Using our system, someone can input a Chest X-ray of a patient, and our model will predict 
-        whether or not the patient has a nodule, mass, or cardiomegaly. If the X-ray diagnosis is positive, the Chest X-ray will be outputted with a 
-        rectangle encasing area of interest (the enlarged heart, nodule, or mass) and the estimated size of the nodule/mass.
+        Chest X-rays are highly valued in diagnosing injuries and ailments within the thoracic region. However, medical diagnosis of these ailments can prove very challenging. 
+        Our team wanted to discover a way to easily diagnose nodules, masses, and cardiomegaly, all of which could be diagnosed more easily with aid from a neural network-backed 
+        computer vision system. <br><br>
+
+        Masses and nodules are similar in that both growths are tumors; the only variance is that masses are larger in size, usually greater than 3cm in diameter, 
+        whereas nodules are smaller, with a width smaller than 3cm. These growths could be categorized as benign or malignant, but malignant growths have a high probability 
+        of metastasizing and could be life-threatening if not treated soon. (“Lung Masses and Growth”) <br><br>
+
+        Cardiomegaly can be defined as the enlargement of the heart. Causes of cardiomegaly range from short-term bodily stress to myocardial weakness and arrhythmia. 
+        An enlarged heart can be treated through surgery and certain medications and is generally easier to treat when diagnosed earlier. (“Enlarged Heart”) <br><br>
+
+        These three ailments were chosen because of the feasibility of diagnosis given the time constraint of the project. These three are solid ailments in the chest and 
+        easy to identify and classify, whereas the other ailments are all some form of liquid in the lungs, making them harder to identify and distinguish from one another. <br><br>
+
+        The goal of our project is to create a model, using supervised classification, that is able to identify and diagnose nodules, masses, and cardiomegaly from an 
+        inputted Chest X-Ray. A Hough transformation and deformable contour will then be used to locate the position of the ailment specifically within the image. A user of 
+        our system will be able to input a Chest X-Ray of a patient, and our model will then determine the presence (with a corresponding confidence level) of a nodule, mass, 
+        or cardiomegaly. The model will then output the image with a boundary encasing area of interest (the enlarged heart, nodule, or mass) and the estimated size of the 
+        nodule/mass.
+
     </div>
     <br><br>
 
