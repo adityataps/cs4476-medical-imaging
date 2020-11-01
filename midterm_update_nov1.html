@@ -139,7 +139,7 @@
 
     </div>
 
-    <h4>Example of boundary created with deformable contouring:</h3>
+    <h4>Example of boundary created with deformable contouring:</h4>
     <div class="image_container">
         <img src="Images\Cardiomegaly_boundary.png" alt="Cardiomegaly_boundary" width="350" height="400">
     </div>
@@ -151,36 +151,104 @@
     What makes our project successful-->
     <h3>Experiments and Results</h3>
     <div class="text_indent">
-        We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. The dataset is prelabeled with the associated thoracic pathology (if any) 
-        and identified as training data or testing data. The dataset contains 112,120 frontal-view X-ray images, covering 14 different illnesses. 
-        Since we are focusing on nodules, masses, and cardiomegaly, we will be using a subset of the 20,584 images that correspond to those illnesses. 
-        We will be using TensorFlow and Keras to create a convolutional neural network and train it with the training data and test the accuracy of 
-        our model’s predictions with the testing data. To carry out this approach, we would require certain resources to train and test our model. 
-        For this, we have secured access to a lambdabook (dual GPU deep learning laptop) as well as a certain amount of free Azure credits that 
-        can be used to train models on their cloud GPU architecture. This level of computational power should be enough to train the model we have in mind 
-        (keeping in mind realistic limitations in complexity of the model as well as number of images pushed). As for the Hough transformation and 
-        deformable contours, we will implement based on the pseudocode from class and outside of class research. Our project will be successful if we 
-        can make a model that can diagnose nodules, masses, and cardiomegaly based on any input Chest X-ray with at least 75% accuracy and denote 
-        specifically where the ailments were detected within the X-rays. The measured accuracy will be based on the F1 score metric - a statistical 
-        accuracy measure, typically used for binary classification in machine learning. This metric was used by the CheXNet architecture cited 
-        earlier in this proposal and has been modified to be comparable for multi-classification problems. Some potential uncertainties would 
-        be differentiating between nodules and masses, because of the similarities in the shape of the two ailments and size being the main 
-        differentiating factor, as well as the specific structure of our neural network; we may also find that one architecture works better 
-        than another in detecting the relevant illnesses. In addition to different architectures, we might need to try different datasets according to
-        the architecture it is being used with (for example, one type of architecture might require a lot of images for training). We will experiment with different 
-        neural network architectures on a smaller 
-        subset of our dataset images to attain the accuracy of the predictions. We will also experiment with different configurations 
-        for our deformable contouring implementation such as changing the number of vertices, the initial shape of the contour, 
-        the tension parameter (alpha), and the stiffness parameter (beta). The results of this experiment would help us find the optimal 
-        configuration for nodule, masse, and cardiomegaly deformable contours. We would also need to test whether using Hough transformations 
-        in the labeling of Nodule and Mass locations would be helpful in creating a more accurate model from our architecture. 
-        Our hypothesis is that using a hough transformation to pre-process and label the training images as containing an ailment 
-        in a certain region (e.g. Nodule in upper left) before being used in the CNN would lead to more accurate classification. 
-        We will also experiment with using different Hough transforms and contouring to assist in visualization and labelling after 
-        being classified by our model as well as to extract further information from the image such as size (area) of the ailment to 
-        determine the severity. Our contouring area and corresponding energy of the area of interest will also be used as a 
-        confirmation of the prediction of our model to help prevent false positives.
-
+<ul>
+<ul>
+<li>The Tensorflow/Keras model and PyTorch model were both considered - GitHub repositories for the code were looked at as cited in the references. The first experiment that was run was a straight test of the training efficiencies of both models by running the pre-given training code/steps for each model.&nbsp;</li>
+<ul>
+<li>Repository 1 (PyTorch) was far less computationally expensive and more efficient, while providing an AUROC (<span style="font-weight: bold;">Area Under a Receiver Operating Characteristic Curve</span>) of 0.836</li>
+<li>Repository 2 (Keras/TensorFlow) was computationally more expensive and inefficient, while providing an AUROC of 0.841 (original AUROC as described in the CheXNet paper)</li>
+<li>Based on the above, the training algorithm we used was inspired by the PyTorch repository - certain adjustments were made, including, but not limited to, weight update mechanism changes, addition of reinforcement learning as a mechanism to train, batch size modifications to prevent available GPUs from running out of memory</li>
+</ul>
+<li>The second experiment was purely testing the performance of both models on an untouched &ldquo;new&rdquo; set of images (from the NIH dataset and sub-sampled by the GitHub repositories themselves as previously un-tested images). The AUROCs that resulted were as follows:</li>
+<ul>
+<li>Repository 1 (PyTorch): 0.8108</li>
+<li>Repository 2 (Keras/TensorFlow): 0.841</li>
+<li>From the above, we see that the Keras/TensorFlow model was able to retain its original AUROC score and hence, accuracy, from the original testing on new images, showcasing its superior applicability.&nbsp;</li>
+<li>Following from the above, the network was implemented using the architecture of the Keras/TensorFlow model as a basis. Large modifications were also made due to computational resource limitations. Improvements were made to the model&rsquo;s ability to detect certain illnesses, while experiencing loss in accuracy for some others (losses were relatively insignificant - order of magnitude of 0.001, while the&nbsp; improvements in accuracy - of the same order of magnitude - are far more important for improving upon the originally published CheXNet algorithm)</li>
+</ul>
+<li>The original CheXNet has 121 layers. This was deemed to be a computationally extravagant model (again, given the resources and time available to our group and for the scope of this project). The architecture was simplified to a 60 layer&nbsp; network, reducing the computation time by a factor of approximately 0.445. This was based on experimentation done with the resulting AUROC scores from 5 different simplified network configurations (shown in the table below).&nbsp;</li>
+</ul>
+</ul>
+<div>
+<table>
+<tbody>
+<tr>
+<td><span style="font-weight: bold;">NUMBER OF LAYERS</span></td>
+<td><span style="font-weight: bold;">AUROC</span></td>
+</tr>
+<tr>
+<td>121</td>
+<td>0.841</td>
+</tr>
+<tr>
+<td>93</td>
+<td>0.8381</td>
+</tr>
+<tr>
+<td>71</td>
+<td>0.8378</td>
+</tr>
+<tr>
+<td>61</td>
+<td>0.8371</td>
+</tr>
+<tr>
+<td>50</td>
+<td>0.821</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Based on the above, it was clear that further simplification (number of layers below 61) was undesirable, so the chosen architecture was a network with 60 layers - with an initial AUROC of 0.8370. Further simplification produced results that made a significant difference to the model&rsquo;s predictions and were deemed too inaccurate. Hence, the stated architecture was chosen.&nbsp;</li>
+</ul>
+<ul>
+<li>Next experiment focused on determining the optimal number of training epochs necessary for our selected architecture. Unfortunately, some errors were made during the collection of data for this experiment, so a figure/table was omitted. However, the determined optimal number of epochs was <span style="font-style: italic;">6</span> (considering values ranged 4 to 10). Two factors were considered when determining this value: accuracy of resultant model and computational complexity/time of training. This value produced an optimal balance of the two factors.&nbsp;</li>
+<ul>
+<li>Modifications to the original training methods were made after initial experimentation using only the training set.&nbsp;</li>
+<li>During each epoch, a batch of images was split up and used as follows:&nbsp;</li>
+<ul>
+<li>Epoch 1: pre-processed images - pre-processing as specified in the above pre-processing section (qualitative results below)</li>
+<li>Epochs 2 &amp; 3: concentration of true positives - larger amount of&nbsp; images representing a true presence of the considered disease were consolidated into a training set for these epochs</li>
+<li>Epochs 4, 5 &amp; 6: random sample from a larger training set</li>
+<li>The above splits provided optimal results in terms of the predictions made by the resultant trained model.&nbsp;</li>
+<li>For comparison, the PyTorch model utilized 5 training epochs in their pre-trained model that was provided in the GitHub repository (cited below).</li>
+</ul>
+</ul>
+<li>The final experiment focused on the testing of the overall architecture on a random sample of 100 images from the testing dataset. The results of these predictions can be found in the Google Sheets document linked below:</li>
+</ul>
+<p><a href="https://drive.google.com/file/d/1-hyDlWrTdAriJ9Mz_GX4atin6OWVoN97/view?usp=sharing" target="_blank" rel="noopener"><span style="font-weight: bold;">Link to Predictions Made by Our Model</span></a></p>
+<p>Keep in mind that these results will need to be thresholded to provide a final decision for the presence of a given illness. The confidence scores are relative rather than absolute.</p>
+<ul>
+<li>Additionally, the AUROC score of our model when compared to the AUROC score of the original CheXNet is displayed in the figure below:&nbsp;</li>
+</ul>
+<div>
+<table>
+<tbody>
+<tr>
+<td><span style="font-weight: bold;">LABEL</span></td>
+<td><span style="font-weight: bold;">OUR MODEL AUROC</span></td>
+<td><span style="font-weight: bold;">CheXNet AUROC</span></td>
+</tr>
+<tr>
+<td>Cardiomegaly</td>
+<td>0.9017</td>
+<td>0.9248</td>
+</tr>
+<tr>
+<td>Mass</td>
+<td>0.8509</td>
+<td>0.8676</td>
+</tr>
+<tr>
+<td>Nodule</td>
+<td>0.7658</td>
+<td>0.7802</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>As shown above, our model&rsquo;s accuracy is slightly lower than the original CheXNet. However, considering the complexity of the CheXNet architecture being greater by a factor of 2 (in terms of number of layers used), these initial results are quite promising. For our final update, we aim to close the gap in accuracy even further, possibly surpassing the original accuracy of the CheXNet for the subset of considered illnesses. We will also compare the effects of using an entirely pre-processed dataset to re-train both our model and the original CheXNet to see the resultant changes in prediction accuracy.</p>
         <br><br>(The NIHCC's dataset can be found at https://nihcc.app.box.com/v/ChestXray-NIHCC)
     </div>
     <br>
