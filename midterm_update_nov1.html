@@ -15,23 +15,44 @@
 <div class="container">
 <div class="page-header">
     <!-- Title and Name --> 
-    <h1>Medical Imaging</h1> <!--maybe change to something like Chest X-ray Imaging?-->
+    <h1>Detecting Cardiomegaly and Tissue Growth using Computer Vision on Chest X-rays</h1> <!--maybe change to something like Chest X-ray Imaging?-->
     <span style="font-size: 20px; line-height: 1.5em;"><strong>Yash Kothari, Nima Jadali, Aditya Tapshalkar, Brayden Richardson, and Raymond Bryant</strong></span><br>
-    <span style="font-size: 18px; line-height: 1.5em;">Fall 2020 CS 4476 Intro to Computer Vision: Class Project</span><br>
+    <span style="font-size: 18px; line-height: 1.5em;">CS 4476 - Intro to Computer Vision <br> Fall 2020 Class Project</span><br>
     <span style="font-size: 18px; line-height: 1.5em;">Georgia Institute of Technology</span>
     <hr>
 
 
     <!-- Proposal -->
-    <h2>Proposal</h2>
+    <h2>Proposal and Midterm Update</h2>
 
     <div class="proposal_items">
+
+    <h3>Abstract</h3>
+    <div class="text_indent">
+        Radiologists and physicians manually observe chest X-Rays to diagnose certain illnesses and irregularities.
+        Our team is developing a computer vision neural network system to facilitate and validate the diagnosis of chest
+        nodules, masses, and cardiomegaly. This will be done through pre-processing of a given X-Ray image, running the
+        X-Ray through a convolutional neural network (implemented with TensorFlow) resulting in confidence scores for
+        the presence of the considered illnesses, and conducting Hough transform techniques and deformable contouring
+        to detect and localize possible masses, nodules, and cardiomegaly. The output of our system is a confidence
+        measure (probability) that the detected figure is actually a cardiomegaly or an unusual growth, and the
+        location of the growth or cardiomegaly in the image. Our system can then help prioritize images of patients
+        with higher confidence measures of a given illness (or ilnesses) and can also recommend further analysis for
+        images producing results with high uncertainty.
+
+    </div>
+
+    <h3>Teaser Figure</h3>
+    <div class="image_container">
+        <img src="Images\teaser_image.png" alt="teaser_image" width="50%" height="auto"/>
+    </div>
+
     <h3>Problem Statement</h3>
     <div class="text_indent">
         Chest X-rays are highly valued in diagnosing injuries and ailments within the 
         thoracic region. However, medical diagnosis of these ailments can prove very 
-        challenging. Our team wanted to discover a way to easily diagnose nodules, masses, 
-        and cardiomegaly, all of which could be diagnosed more easily with aid from a 
+        challenging. Our team wanted to discover a way to easily diagnose nodules, masses,
+        and cardiomegaly, all of which could be diagnosed more easily with aid from a
         neural network-backed computer vision system. <br><br>
         
         Masses and nodules are similar in that both growths are tumors; the only 
@@ -114,8 +135,13 @@
         Possibly, we will try to find a threshold for how off a deformable contour is before marking a predicted cardiomegaly as a 
         false positive. In addition, the contour can then be used to also calculate the size of the enlarged heart and make it more visible.
         <br><br>
-        Some sample images with boundaries (in red):
+        We will be basing the architecture for our network off the CheXNet architecture that has already been built to classify chest X-Rays.
 
+    </div>
+
+    <h4>Example of boundary created with deformable contouring:</h3>
+    <div class="image_container">
+        <img src="Images\Cardiomegaly_boundary.png" alt="Cardiomegaly_boundary" width="350" height="400">
     </div>
     <br>
 
@@ -159,18 +185,41 @@
     </div>
     <br>
 
-    <h3>Citations</h3>
+    <h3>Some Terminology</h3>
     <div class="text_indent">
-        *add citations here*
+        <strong>Pulmonary Nodule</strong>: a small round or oval-shaped growth in the lung. It may also be called 
+        a “spot on the lung” or a “coin lesion.” Pulmonary nodules are smaller than three centimeters (around 1.2 inches) 
+        in diameter.
+        <br><br>
+        <strong>Lung Mass</strong>: an abnormal spot or area in the lungs that are more than 3 centimeters (cm), 
+        about 1 1/2 inches, in size.<br><br>
+        <strong>Cardiomegaly</strong>: an abnormal enlargement of the heart.<br><br>
+        <strong>Thoracic</strong>: a medical word for things pertaining to the thorax (chest) area of your body.<br><br>
+        <strong>Metastasize</strong>: (typically referring to cancer) to spread to other sites in the body by metastasis.
+    </div>
+
+    <h3>Citations</h3>
+    <div style="text-indent: -36px; padding-left: 36px;">
+        <p>“Enlarged Heart.” <em>Mayo Clinic</em> , 16 Jan. 2020, 
+            https://www.mayoclinic.org/diseases-conditions
+            /enlarged-heart/symptoms-causes/syc-20355436.</p>
+        <p>“Lung Masses And Growths.” <em>Beaumont Health</em>, 
+            https://www.beaumont.org/conditions/lung-masses-and-growths. 
+            Accessed 30 Sept. 2020.</p>
+        <p>Summers, Ronald. <em>NIH Chest X-Ray Dataset of 14 Common Thorax 
+            Diseases</em>. 5 Nov. 2018. NIH, https://nihcc.app.box.com/v/Chest
+            Xray-NIHCC/file/220660789610.
+        </p>
+        <p>Wang, Xiaosong, et al. <em>ChestX-Ray8: Hospital-Scale Chest X-Ray 
+            Database and Benchmarks on Weakly-Supervised Classification and 
+            Localization of Common Thorax Diseases</em>. 2017. IEEE, doi:10.1109/cvpr.2017.369.
+        </p>
     </div>
 
     <br><br>
     </div>
 
   <hr>
-  <footer> 
-  <p>© You Name Here</p>
-  </footer>
 </div>
 </div>
 
