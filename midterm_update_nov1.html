@@ -21,9 +21,7 @@
     <span style="font-size: 18px; line-height: 1.5em;">Georgia Institute of Technology</span>
     <hr>
 
-
-    <!-- Proposal -->
-    <h2>Proposal and Midterm Update</h2>
+    <h2>Midterm Update</h2>
 
     <div class="proposal_items">
 
@@ -170,12 +168,6 @@
         beta, and gamma.
         <br><br>
 
-<<<<<<< HEAD
-=======
-    <h4>Example of boundary created with deformable contouring:</h4>
-    <div class="image_container">
-        <img src="Images\Cardiomegaly_boundary.png" alt="Cardiomegaly_boundary" width="350" height="400">
->>>>>>> 4ccf0aa87240d194bdf36f874fd2f659143e5de2
     </div>
 
     <h3>Experiments and Results</h3>
@@ -278,42 +270,51 @@
 </table>
 </div>
 <p>As shown above, our model&rsquo;s accuracy is slightly lower than the original CheXNet. However, considering the complexity of the CheXNet architecture being greater by a factor of 2 (in terms of number of layers used), these initial results are quite promising. For our final update, we aim to close the gap in accuracy even further, possibly surpassing the original accuracy of the CheXNet for the subset of considered illnesses. We will also compare the effects of using an entirely pre-processed dataset to re-train both our model and the original CheXNet to see the resultant changes in prediction accuracy.</p>
-        <br><br>(The NIHCC's dataset can be found at https://nihcc.app.box.com/v/ChestXray-NIHCC)
     </div>
     <br>
 
-    <h3>Some Terminology</h3>
-    <div class="text_indent">
-        <strong>Pulmonary Nodule</strong>: a small round or oval-shaped growth in the lung. It may also be called 
-        a “spot on the lung” or a “coin lesion.” Pulmonary nodules are smaller than three centimeters (around 1.2 inches) 
-        in diameter.
+    <h3>Qualitative results</h3>
+    <div class="image_container">
+        Attempts of HSV quantization resulted in the following images, where k is the number of clusters used.
         <br><br>
-        <strong>Lung Mass</strong>: an abnormal spot or area in the lungs that are more than 3 centimeters (cm), 
-        about 1 1/2 inches, in size.<br><br>
-        <strong>Cardiomegaly</strong>: an abnormal enlargement of the heart.<br><br>
-        <strong>Thoracic</strong>: a medical word for things pertaining to the thorax (chest) area of your body.<br><br>
-        <strong>Metastasize</strong>: (typically referring to cancer) to spread to other sites in the body by metastasis.
+        <img src="Images\hsv_test.png"><br>
+        <strong>Figure 1.</strong> Effects of using HSV quantization on X-ray input images.
+        <br><br>
+        Several values of k were used (ranging from 2 to 7 clusters), resulting in the following outputs.
+        <br><br>
+        <img src="Images\cluster_test.png"><br>
+        <strong>Figure 2.</strong> Results of using k=2,3,4,7 clusters for RGB quantization on X-ray input images.
+        <br><br>
+        <img src="Images\deform_contour_CM.png"><br>
+        <strong>Figure 3.</strong> Results of using alpha = .01, beta = 2, gamma = 300 and 200 iterations (red is final contour and blue is every 20th contour) 
+        for deformable contouring on two chest x-rays, one with a cardiomegaly (left) and one with no illness (right).
+        <br><br>
+        <img src="Images\Acc_DetectPoint_GHT.png"><br>
+        <strong>Figure 4.</strong> Results of using the generalized Hough Transform on an image with a cardiomegaly. The reference 
+        image depicts a mass occurrence in another image. The Accumulator is the result considering the input and reference images. 
+        The Detected point(s) image contains the thresholded points from the accumulator.
     </div>
 
-    <h3>Citations</h3>
-    <div style="text-indent: -36px; padding-left: 36px;">
-        <p>“Enlarged Heart.” <em>Mayo Clinic</em> , 16 Jan. 2020, 
-            https://www.mayoclinic.org/diseases-conditions
-            /enlarged-heart/symptoms-causes/syc-20355436.</p>
-        <p>“Lung Masses And Growths.” <em>Beaumont Health</em>, 
-            https://www.beaumont.org/conditions/lung-masses-and-growths. 
-            Accessed 30 Sept. 2020.</p>
-        <p>Summers, Ronald. <em>NIH Chest X-Ray Dataset of 14 Common Thorax 
-            Diseases</em>. 5 Nov. 2018. NIH, https://nihcc.app.box.com/v/Chest
-            Xray-NIHCC/file/220660789610.
-        </p>
-        <p>Wang, Xiaosong, et al. <em>ChestX-Ray8: Hospital-Scale Chest X-Ray 
-            Database and Benchmarks on Weakly-Supervised Classification and 
-            Localization of Common Thorax Diseases</em>. 2017. IEEE, doi:10.1109/cvpr.2017.369.
-        </p>
+    <h3>Conclusion</h3>
+    <div class="text_indent">
+        Currently, our model, for a given image, outputs a set of probabilities each  indicating its confidence in the presence of a given illness from the 
+        set of illnesses we are considering. This gives us an initial idea of what these probabilities will look like, and for the final project update, we 
+        will threshold these probabilities such that a single label (representing the detected illness) is assigned to each image. We will also consider two 
+        additional possibilities: the confidence is not high enough to indicate any of the considered illnesses, or the confidence measures indicate the 
+        presence of multiple illnesses. We will handle the first case by assigning a label to indicate that no illness was detected, and we will follow up with 
+        further post-processing (Hough transform and contouring) to verify the model output. The second case must also be considered because there will 
+        inevitably be some small amount of overlap within our dataset of the considered illnesses, and images falling under this case will be flagged for uncertainty. 
+        These images would be recommended for further analysis by a radiologist or an expert in thoracic pathology. As discussed above, we will also utilize a 
+        larger amount of pre-processed images during the training of our model as well as refine the techniques we used for quantization and smoothing for the 
+        final update. We will also attempt to use Hough transform and contouring to localize the area of interest in a given image prior to training in order to 
+        verify its assigned ground truth label and assist in feature extraction. These experiments will hopefully expose our model to more relevant features 
+        that can be extracted, and it will allow us to further explore how and to what extent the overall effectiveness of our model changes.
+        <br><br>
+        Additionally, we can conclude that our model may or may not perform well for a random set of Chest X-Rays outside this dataset. A focus for future 
+        work, within the scope of the final update, will be validating the results of this model on additional datasets for generalization testing and also 
+        ensuring that over-fitting has not taken place. Furthermore, the F1 score will also be computed and analyzed to determine accuracy as mentioned in the 
+        project proposal (to be done by final update).
     </div>
-
-    <br><br>
     </div>
 
   <hr>
