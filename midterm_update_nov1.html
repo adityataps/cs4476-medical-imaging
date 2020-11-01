@@ -44,16 +44,17 @@
 
     <h3>Teaser Figure</h3>
     <div class="image_container">
-        <img src="Images\teaser_image.png" alt="teaser_image" width="50%" height="auto"/>
+        <img src="Images\teaser_image.png" alt="teaser_image"/>
     </div>
+    <br><br>
 
-    <h3>Problem Statement</h3>
+    <h3>Introduction</h3>
     <div class="text_indent">
-        Chest X-rays are highly valued in diagnosing injuries and ailments within the 
-        thoracic region. However, medical diagnosis of these ailments can prove very 
-        challenging. Our team wanted to discover a way to easily diagnose nodules, masses,
-        and cardiomegaly, all of which could be diagnosed more easily with aid from a
-        neural network-backed computer vision system. <br><br>
+        Chest X-rays are very useful in diagnosing injuries and ailments within the thoracic region. 
+        However, medical diagnosis of these ailments can often prove very challenging. Our team is 
+        exploring new ways to efficiently diagnose conditions such as nodules, masses, and cardiomegaly.
+        Our system will aid in diagnosis using computer vision techniques integrated with a convolutional 
+        neural net. <br><br>
         
         Masses and nodules are similar in that both growths are tumors; the only 
         variance is that masses are larger in size, usually greater than 3cm in diameter, 
@@ -61,10 +62,11 @@
         be categorized as benign or malignant, but malignant growths have a high probability 
         of metastasizing and could be life-threatening if not treated soon. (“Lung Masses and Growth”) <br><br>
 
-        Cardiomegaly can be defined as the enlargement of the heart. Causes of cardiomegaly 
-        range from short-term bodily stress to myocardial weakness and arrhythmia. An enlarged 
-        heart can be treated through surgery and certain medications and is generally easier 
-        to treat when diagnosed earlier. (“Enlarged Heart”) <br><br>
+        A cardiomegaly is essentially an enlargement of the heart and is primarily caused by short-term 
+        stresses on the body such as pregnancies or underlying medical conditions like heart valve problems 
+        and arrhythmias. Like most conditions, cardiomegaly can be treated if diagnosed early enough, which 
+        is usually done through treatment and correcting the cause of cardiomegaly; treatments include 
+        medications and surgery. <br><br>
 
         These three ailments were chosen because of the feasibility of diagnosis given the 
         time constraint of the project. These three are solid ailments in the chest and easy 
@@ -84,71 +86,92 @@
     </div>
     <br><br>
 
-    <div class="image_container">
-        <img src="Images\Cardiomegaly_sample.png" alt="Cardiomegaly_sample">
-        <img src="Images\Mass_sample.png" alt="Mass_sample">
-        <img src="Images\Nodule_sample.png" alt="Nodule_sample">
-    </div>
-
-    <!-- Approach
-    Comments: potentially mention some preprocessing we might do on the X-Rays/what pre-processing we might do to an inputted patient image before our model makes a prediction
-    Maybe talk about the steps of the CNN and how it relates to material from class? -->
     <h3>Approach</h3>
-    <div class="text_indent"> 
-        We will be utilizing supervised learning to detect features indicative of a mass, nodule, or cardiomegaly. 
-        This will be done by training a convolutional neural network to extract features and classify the input 
-        X-ray images, with a certain confidence, into the various classes representing each condition. 
-        There will be some overlap between classes due to the nature of the dataset used, but we will 
-        choose the class with the highest confidence for a given image with overlapping ground truth.   <br><br>   
-        The general architecture of our model will consist of the following:
+    <div class="text_indent">
+        <div class="image_container">
+            <img src="Images\overview_flowchart.png" alt="overview_flowchart">
+            <br><br>
+            A high-level overview of our approach can be seen in the above figure which will be explained in detail in the rest of this section.
+        </div>
+
+        <h4>Preprocessing</h4>
+        The first step in our process was to pre-process the input X-ray images to aid the neural network in identifying each of our three main 
+        ailments as facilitating post-processing. In deciding on what preprocessing to apply to the chest X-rays, our group considered both HSV 
+        and RGB quantization through the use of K-Means clustering. We wanted to quantize the input images in order to reduce the number of 
+        distinct colors in each X-ray to make diagnosing for cardiomegaly, masses, and nodules easier. 
+        <br><br>
+
+        Each condition involves a solid mass in the body, much more visible and distinct in an X-ray than features in conditions such as infiltration 
+        or pneumonia. Upon trying HSV quantization, we realized that, due to the nature of X-ray images, the output quantizations of the images were 
+        insufficient. An illustration of this can be found in Figure 1 in the Qualitative Results section. Therefore, we resolved to utilize RGB 
+        quantization; however, we had to then test different amounts of clusters to quantize with. Starting at 2 clusters, we could tell that the 
+        X-rays were being over-simplified and turning into binary images, losing too much information about the contents of the X-ray. 7 clusters were 
+        far too many, as the images were still noisy from the patient’s ribs and other tissues and organs in the chest cavity. With this range in mind, we 
+        tested cluster sizes of 3 and 4, and finally settled on 3. Choosing 3 clusters kept enough of the X-ray information to where a mass, nodule, 
+        or cardiomegaly could still be identified, but abstracted the X-ray enough to get rid of any noise in the image, like the ribs. Examples of 
+        each cluster value can be seen in the Qualitative Results section, in Figure 2.
+        <br><br>
+
+        After conducting the RGB quantization on all input images, each image was then convoluted with a box linear filter to produce a smoother 
+        pre-processing output to facilitate feature recognition during reinforcement learning.
+
+        <h4>Convolutional Neural Network (CNN) Reinforcement Learning</h4>
+        The original CheXNet architecture was analyzed, having been built using Keras/TensorFlow. The 121-layer neural network was deemed too 
+        complex for the scope of this project, and hence, simplifications were made. These include:
         <ul>
-            <li>Initial pre-processing within the input layer</li>
-            <li>CheXNet architecture used as a basis for development of hidden layers
-                <ul>
-                    <li>Original network has 121 layers - will be narrowed down proportionally to reflect scope of this project</li>
-                    <li>Original network was trained on 100,000 frontal chest X-ray images - 
-                        aim to narrow this down as well depending on image choice 
-                        (uncertain as explained below in the experiment sub-section)</li>
-                </ul>
-            </li>
-            <li>Hough transform after classification for location (except for cardiomegaly detection)</li>
-            <li>Deformable contours to define the boundaries of the ailment</li>
+            <li>Removal of certain disease/problem categories (Atelectasis, Consolidation, Edema, Effusion, Emphysema, Fibrosis, Hernia, Infiltration, 
+                Pleural Thickening, Pneumonia and Pneumothorax were all removed) - categories that were left were cardiomegaly, mass and nodule.</li>
+            <li>Training has been done on a smaller subset of the original training set to simplify computation. However, accuracy has not been compromised 
+                to a great degree, due to the usage of pre-processed images in training epoch 1 as will be discussed further.</li>
+            <li>Testing was only (so far) done on a far smaller subset of randomly sampled (seeded) images from the testing dataset.</li>
+            <li>The architecture was simplified by removing a large percentage of the layers (from 121 originally to 60) to make the training, testing and 
+                running of the model more computationally easy and efficient given our limited resources.</li>
+            <li>Application of the algorithm was done to a set of images that are provided within the NIH chest X-Ray dataset, used by various models for 
+                algorithm application (not within either the subset of training or testing)</li>
         </ul>
-        Our approach for locating nodules and masses would be preprocessing the image to remove noise, 
-        and then use a generalized Hough transformation (using our PS2 implementation as a basis) to 
-        locate roughly where the nodule or mass might be and then applying a deformable contour to 
-        get the more exact boundaries (since the nodules or masses are slightly non-rigid) and 
-        potentially calculating the size (area) of the nodule or mass using the boundary. We will use 
-        various filters (Sobel, Prewitt, etc.), smoothing techniques, and quantization/clustering to 
-        address potential image noise in order to get better results from our detection. 
-        We will also use varying ranges of target radii for detecting the nodules and masses as they are 
-        going to vary in size, and we can use the results of our contouring to further refine our ranges 
-        (by having a better estimate of average size for each ailment).
+
+        <h4>Post-processing</h4>
+        After running our input X-ray through our CNN, we decided to run a Hough transform, a feature-extracting technique utilizing a vote-accumulating 
+        matrix, for nodule and mass detection, and deformable contouring, another feature-extraction method using a general shape as an initial contour 
+        that then deforms to fit the shape of a feature in the image, to detect for nodules, masses, and cardiomegaly.
         <br><br>
-        Our approach for locating cardiomegaly would be to evolve a contour to best fit the boundary of the heart in the chest X-ray. 
-        Although the heart will be located in roughly the same region across X-ray images (center-right of the image, 
-        majority on the patient’s left side), we may need to perform 2D image transformations to make some outlier X-rays uniform 
-        (e.g. X-ray of a small child). The contour would be initialized roughly where the enlarged heart would be expected to be 
-        found in the chest X-ray (middle right of the image). The shape of the contour will then iteratively deform to better fit 
-        the contours of the heart. Once the contours have converged, then the contour will be extracted from the image and compared 
-        against control contours of normal and enlarged heart to double check whether the heart is normal-sized or indeed enlarged. 
-        Possibly, we will try to find a threshold for how off a deformable contour is before marking a predicted cardiomegaly as a 
-        false positive. In addition, the contour can then be used to also calculate the size of the enlarged heart and make it more visible.
+
+        For the Hough transform used to locate the nodule and masses in the X-rays, we first tried using a modified version of our Hough transformation 
+        problem set (PS2) with binning that grouped horizontally by 5 pixels and vertically by 10 pixels. This binning worked the best on masses and it 
+        ran faster than our generalized Hough transformation we created afterwards. The modified Hough transformation with bins did not work very well 
+        on nodules as there were often small details and noise in the X-ray images that led to misidentification (the same happened with identifying 
+        masses, but to a lesser extent). A workaround for this was to choose the region containing the most centers as the region with the mass/nodule. 
+        So, if the bottom left contained 5 centers above the threshold, while the other regions contain around 2 - 3 centers, the inputted X-ray would 
+        be labeled as having a nodule or mass, depending on the identification, most likely in the bottom left region. This worked decently well for 
+        labeling X-rays of nodules and masses with regions, but identification of their specific location was still not very accurate. The next step was 
+        to create a generalized Hough transformation that used an R-table created based on an input image of a mass or nodule to perform a general Hough 
+        transformation. The generalized Hough transformation worked by creating an R-table based on a reference image which is a cropped sample X-ray 
+        of either a mass or nodule taken from some other patient. In the future, we plan on making our own reference image that might be more consistent. 
+        The R-table is used to create an accumulator array for the canny edge image of the input image which takes a very long time considering the 
+        number of values in the R-table. The generalized Hough transformation worked with a much greater accuracy, and often the mass or nodule would be 
+        within the top 5 predicted centers. The downside to using the general Hough transformation is that the process takes a long time to run. 
+        Even with vectorization, optimization, and using a smaller less accurate reference image, the generalized Hough transformation can take up to 2 
+        minutes to run, making it not feasible for quickly labeling or identifying the location of masses/nodules. Going forward we are trying to find 
+        ways of optimizing through possibly decreasing the search space by making bounding boxes around the lungs (which we think could be done via a HOG 
+        because of the bones’ strong contrast with the rest of the X-ray) and making the reference image more concise. Creating a bounding box limiting 
+        the search to the lungs would also make our results more accurate (and could maybe even help with finding the center where the heart would be 
+        located which would be useful for the deformable contour on patients with irregularly shaped X-rays.
         <br><br>
-        We will be basing the architecture for our network off the CheXNet architecture that has already been built to classify chest X-Rays.
+
+        The deformable contouring works well on cardiomegaly since the starting position does not vary much for the heart. For the heart, the starting 
+        position is slightly to the left side of the patient’s chest’s center (skewed right on the X-ray). There are some X-rays that are unusually 
+        oriented, so that the patient's body is not centered (as mentioned we might use bounding boxes to help solve this problem).  The starting radius 
+        of the circle is 200 pixels. Going forward we can change the initial shape of the contour to make it more irregular instead of a circle so that it 
+        fits the shape of a heart better; this would lead to a more accurate contour that would circle around the heart. For the specific implementation, it 
+        was based on the class lecture and a technical report by D.N Davis. There are 400 points total in the contour. The alpha is .01 and beta is 2, 
+        gamma is 300, and we found that with 150 iterations, the contour reaches a point where it no longer changes. Using a number of iterations higher 
+        than this (200 iterations or greater) will lead to x-rays of normal hearts having a different contour with a smaller area, since their contour will 
+        continue to decrease in size more after 150 iterations. Each iteration, the 400 points move to minimize the energy function which is based on alpha, 
+        beta, and gamma.
+        <br><br>
 
     </div>
 
-    <h4>Example of boundary created with deformable contouring:</h3>
-    <div class="image_container">
-        <img src="Images\Cardiomegaly_boundary.png" alt="Cardiomegaly_boundary" width="350" height="400">
-    </div>
-    <br>
-
-    <!-- Experiment and Results
-    Comments: Mention which software we will be using (TensorFlow and Keras?) and how our work environment will be setup? Not sure if we should just mention Tensor flow for 
-    experimental setup or also include stuff like Github and Trello. Mention what we will implement ourselves
-    What makes our project successful-->
     <h3>Experiments and Results</h3>
     <div class="text_indent">
         We will be using the NIH Clinical Center's publically available Chest X-Ray dataset. The dataset is prelabeled with the associated thoracic pathology (if any) 
