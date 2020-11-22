@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Computer Vision Class Project| CS, Georgia Tech | Fall 2020: CS4476</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="">
+    <meta name="author" content="">
+</head>
+
+<body>
+<div class="container">
+<div class="page-header">
+    <!-- Title and Name --> 
+    <h1>Detecting Cardiomegaly and Tissue Growth using Computer Vision on Chest X-rays</h1> <!--maybe change to something like Chest X-ray Imaging?-->
+    <span style="font-size: 20px; line-height: 1.5em;"><strong>Yash Kothari, Nima Jadali, Aditya Tapshalkar, Brayden Richardson, and Raymond Bryant</strong></span><br>
+    <span style="font-size: 18px; line-height: 1.5em;">CS 4476 - Intro to Computer Vision <br> Fall 2020 Class Project</span><br>
+    <span style="font-size: 18px; line-height: 1.5em;">Georgia Institute of Technology</span>
+    <hr>
+
+    <h2>Midterm Update</h2>
+
+    <div class="proposal_items">
+
+    <h3>Abstract</h3>
+    <div class="text_indent">
+        Radiologists and physicians manually observe chest X-Rays to diagnose certain illnesses and irregularities.
+        Our team is developing a computer vision neural network system to facilitate and validate the diagnosis of chest
+        nodules, masses, and cardiomegaly. This will be done through pre-processing of a given X-Ray image, running the
+        X-Ray through a convolutional neural network (implemented with TensorFlow) resulting in confidence scores for
+        the presence of the considered illnesses, and conducting Hough transform techniques and deformable contouring
+        to detect and localize possible masses, nodules, and cardiomegaly. The output of our system is a confidence
+        measure (probability) that the detected figure is actually a cardiomegaly or an unusual growth, and the
+        location of the growth or cardiomegaly in the image. Our system can then help prioritize images of patients
+        with higher confidence measures of a given illness (or ilnesses) and can also recommend further analysis for
+        images producing results with high uncertainty.
+
+    </div>
+
+    <h3>Teaser Figure</h3>
+    <div class="image_container">
+        <img src="Images\teaser_image.png" alt="teaser_image"/>
+    </div>
+    <br><br>
+
+    <h3>Introduction</h3>
+    <div class="text_indent">
+        Chest X-rays are very useful in diagnosing injuries and ailments within the thoracic region. However, medical diagnosis of 
+        these ailments can often prove very challenging. Our team is exploring new ways to efficiently diagnose conditions such as 
+        nodules, masses, and cardiomegaly. Our system will aid in diagnosis using computer vision techniques integrated with a 
+        convolutional neural net. 
+        <br><br>
+        A cardiomegaly is essentially an enlargement of the heart and is primarily caused by short-term stresses on the body such 
+        as pregnancies or underlying medical conditions like heart valve problems and arrhythmias. Like most conditions, cardiomegaly 
+        can be treated if diagnosed early enough, which is usually done through treatment and correcting the cause of cardiomegaly; 
+        treatments include medications and surgery.
+        <br><br>
+        Nodules and masses are abnormal growths of tissue. Nodules refer to growths smaller than 3cm, while masses are growths larger 
+        than nodules. More than half of lung nodules and masses (60%) ultimately end up being benign, but a large portion of growths 
+        are malignant and cancerous (“Pulmonary Nodules”). These growths are easy to find on chest X-rays but are hard to diagnose; 
+        however, early diagnosis of either of these growths is essential to proper treatment should the growth end up becoming cancerous.
+        <br><br>
+        These three ailments were chosen because of the feasibility of diagnosis given the time constraint of the project. These three 
+        are solid ailments in the chest and easy to identify and classify, whereas the other ailments are all some form of liquid in the 
+        lungs, making them harder to identify and distinguish from one another.
+        <br><br>
+        The goal of our project is to create a model, using supervised classification, that is 
+        able to identify and diagnose nodules, masses, and cardiomegaly from an inputted Chest X-ray. 
+        A Hough transformation and deformable contour will then be used to locate the position of the 
+        ailment specifically within the image. A user of our system will be able to input a Chest X-ray of a patient, 
+        and our model will then determine the presence (with a corresponding confidence level) of a 
+        nodule, mass, or cardiomegaly. The model will then output the image with a 
+        boundary encasing area of interest (the enlarged heart, nodule, or mass) 
+        and the estimated size of the nodule/mass.
+    </div>
+    <br><br>
+
+    <h3>Prior Approaches/Relevant Work</h3>
+    <div class="text_indent">
+        There have already been many great advances in the field of medical image processing and classification using computer vision and machine 
+        learning, but our work attempts to distinguish itself by using some of the techniques we have learned in class to improve or modify some 
+        of the existing success. For example, our chosen architecture for our convolutional neural network is based off of the current cutting edge 
+        model for lung disease detection and classification (ChexNet) developed at Stanford. Rather than attempting to directly improve upon an 
+        already extremely robust model, we have attempted to refine and improve the detection and classification process by post-processing the 
+        output of the model. Most prior work has largely focused on the classification model itself, and not on the pre and post processing of the 
+        input and output with the exception of dataset augmentation to help with model generalization and to prevent overfitting. Our approach 
+        focuses on applying some of the computer vision object localization and detection methods in order to further analyze and refine the results 
+        of the CNN. Specifically, we have attempted to locate the abnormality that has been detected by the model to act as a verification for the 
+        results and to aid in visualization by an expert. Many prior works in medical image processing have included saliency mapping and grad-CAMs 
+        in order to provide some insight into the models and how they are actually classifying the images. We have tried to treat the model largely 
+        as a black box for our project, with the exception of tweaking some training and data parameters as well as the layer count in the 
+        architecture to simplify the original computationally heavy architecture, in order to isolate the effects of our processing techniques. 
+        The CheXNet was trained exclusively on direct Chest X-Rays taken from medical image datasets provided at Stanford.
+        <br><br>
+        The following summarizes the differences between the techniques we have used and the original model: The aim of our project was to use the 
+        CheXNet architectural structure and use different pre and post-processing techniques along with modifications to the model to attempt to 
+        replicate/improve upon the performance of the original CheXNet. While the performance of our version of the CheXNet has, for all purposes, 
+        matched the performance of the original CheXNet, with certain areas in which it has performed better, we believe that the idea of 
+        pre-processing images to provide the neural network with a simpler base for training can, if worked upon further, improve the performance 
+        of the original network. Additionally, the idea of post-processing images to identify various types of chest diseases/issues can be an 
+        additionally helpful tool that can potentially be provided to doctors to provide them with an additional resource during their prognosis 
+        and diagnosis.
+    </div>
+    <br><br>
+
+    <h3>Approach</h3>
+    <div class="text_indent">
+        <div class="image_container">
+            <img src="Images\overview_flowchart.png" alt="overview_flowchart">
+            <br><br>
+            A high-level overview of our approach can be seen in the above figure which will be explained in detail in the rest of this section.
+        </div>
+
+        <h4>Preprocessing</h4>
+        The first step in our process was to pre-process the input X-ray images to aid the neural network in identifying each of our three main ailments 
+        as facilitating post-processing. In deciding on what preprocessing to apply to the chest X-rays, our group considered both HSV and RGB quantization 
+        through the use of K-Means clustering. We wanted to quantize the input images in order to reduce the number of distinct colors in each X-ray to 
+        make diagnosing for cardiomegaly, masses, and nodules easier. 
+        <br><br>
+        Each condition involves a solid mass in the body, much more visible and distinct in an X-ray than features in conditions such as infiltration or pneumonia. 
+        Upon trying HSV quantization, we realized that, due to the nature of X-ray images, the output quantizations of the images were insufficient. An illustration 
+        of this can be found in Figure 1 in the Qualitative Results section. Therefore, we resolved to utilize RGB quantization; however, we had to then test 
+        different amounts of clusters to quantize with. Starting at 2 clusters, we could tell that the X-rays were being over-simplified and turning into binary 
+        images, losing too much information about the contents of the X-ray. 7 clusters were far too many, as the images were still noisy from the patient’s ribs 
+        and other tissues and organs in the chest cavity. With this range in mind, we tested cluster sizes of 3 and 4, and finally settled on 3. Choosing 3 clusters 
+        kept enough of the X-ray information to where a mass, nodule, or cardiomegaly could still be identified, but abstracted the X-ray enough to get rid of any 
+        noise in the image, like the ribs. Examples of each cluster value can be seen in the Qualitative Results section, in Figure 2.
+        <br><br>
+        After conducting the RGB quantization on all input images, each image was then convolved with a box linear filter to produce a smoother pre-processing output 
+        to facilitate feature recognition during reinforcement learning.
+
+        <h4>Convolutional Neural Network (CNN) Reinforcement Learning</h4>
+        The original CheXNet architecture was analyzed, having been built using Keras/TensorFlow. The 121-layer neural network was deemed too 
+        complex for the scope of this project, and hence, simplifications were made. These include:
+        <ul>
+            <li>Removal of certain disease/problem categories (Atelectasis, Consolidation, Edema, Effusion, Emphysema, Fibrosis, Hernia, Infiltration, 
+                Pleural Thickening, Pneumonia and Pneumothorax were all removed) - categories that were left were cardiomegaly, mass and nodule.</li>
+            <li>Training has been done on a smaller subset of the original training set to simplify computation. However, accuracy has not been compromised 
+                to a great degree, due to the usage of pre-processed images in training epoch 1 as will be discussed further.</li>
+            <li>Testing was only (so far) done on a far smaller subset of randomly sampled (seeded) images from the testing dataset.</li>
+            <li>The architecture was simplified by removing a large percentage of the layers (from 121 originally to 60) to make the training, testing and 
+                running of the model more computationally easy and efficient given our limited resources.</li>
+            <li>Application of the algorithm was done to a set of images that are provided within the NIH chest X-Ray dataset, used by various models for 
+                algorithm application (not within either the subset of training or testing)</li>
+        </ul>
+
+        <h4>Post-processing</h4>
+        After running our input X-ray through our CNN, we decided to run a Hough transform, a feature-extracting technique utilizing a vote-accumulating 
+        matrix, for nodule and mass detection, and deformable contouring, another feature-extraction method using a general shape as an initial contour 
+        that then deforms to fit the shape of a feature in the image, to detect for nodules, masses, and cardiomegaly.
+        <br><br>
+        The generalized Hough transform is used for locating the location/center where the ailment is located. The generalized Hough transform takes in a reference 
+        image of the ailment and the chest X-ray itself to locate where the desired location is.
+        <br><br>
+        For the Hough transform used to locate the nodule and masses in the X-rays, we first tried using a modified version of our Hough transformation problem 
+        set (PS2) with binning that grouped horizontally by 5 pixels and vertically by 10 pixels. This binning worked the best on masses and it ran much faster 
+        than our generalized Hough transformation we created afterwards. The modified Hough transformation with bins did not work very well on nodules as there 
+        were often small details and noise in the X-ray images that led to misidentification (the same happened with identifying masses, but to a lesser extent). 
+        A workaround for this was to choose the region containing the most centers as the region with the mass/nodule. So, if the bottom left contained 5 centers 
+        above the threshold, while the other regions contain around 2 - 3 centers, the inputted X-ray would be labeled as having a nodule or mass, depending on 
+        the identification, most likely in the bottom left region. This worked decently well for labeling X-rays of nodules and masses with regions, but 
+        identification of their specific location was still not very accurate.
+        <br><br>
+        To increase the accuracy further, we tried running the Hough Transformation within a bounding box that ignored error prone regions like collar bones 
+        and the outside of the rib cages. This led to less misidentification of bone structures as nodules/masses. However, there was still misidentification of which 
+        region and specific location the ailment was in because of the noise in the X-ray of the lung area. 
+        <br><br>
+        The last modification made to the Hough Transformation was making it create two different radii circles for the masses. This increased its ability to predict the 
+        location of masses because the masses would often have irregular shapes. Since two circles with different radii were drawn, it would allow for the masses to have 
+        irregular shapes and still have a lot of their points be counted/have overlap. Without the bounding box this would lead to a lot of erroneous predictions, but 
+        since we limited where the Hough transform ran greatly, it led to in more cases better results.
+        <br><br>
+        However, for more accurate results of the location, we need to use a generalized Hough Transformation. And so, the next step was to create a generalized Hough 
+        transformation that used an R-table created based on an input image of a mass or nodule to perform a general Hough transformation. The generalized Hough transformation 
+        worked by creating an R-table based on a reference image which is a cropped sample X-ray of either a mass or nodule taken from some other patient. We also tested 
+        making our own reference image by combining features and shapes from different nodules/masses to make an average of each ailment; however, this did not work well 
+        and led to a lot more misidentification. The reason for this is most likely our created ailment reference image being inaccurate. It could be possible to make an 
+        accurate reference if a professional with a better understanding of X-rays and nodules/masses were to create the reference image. Nonetheless, the R-table is used 
+        to create an accumulator array for the canny edge image of the input image which takes a very long time considering the number of values in the R-table. The 
+        generalized Hough transformation worked with a much greater accuracy, and often the mass or nodule would be within the top 5 predicted centers. The downside to 
+        using the general Hough transformation is that the process takes a long time to run. Even with vectorization, optimization, and using a smaller less accurate 
+        reference image (a bounding box similar to the one used for the Hough transformation region detection mentioned before), the generalized Hough transformation 
+        can take up to 2 minutes to run, making it not feasible for quickly labeling or identifying the location of masses/nodules. However, for the post processing of 
+        the nodules and masses, it is the method we chose for locating where the nodule or mass is located in the X-ray. Compared to a professional, taking 2-3 minutes 
+        to identify an ailment within an X-ray may be a long time; however, we believe getting somewhat accurate feedback about where the nodule or mass may be located 
+        still has its use cases and with further optimization has room to be very useful. Overall, we found that for relabeling the nodule/mass regions, it would be 
+        best to use our modified hough transform restricted to a bounding box located where the lungs are. The hough transform would return the centers above a threshold. 
+        The X-ray is then split into four similarly sized regions and the number of centers in each region is counted. The region where the most centers are located is 
+        labeled as the region where the ailment (mass or nodule) is. This method is fast and relies on the X-ray not having much noise in the region where the lungs are 
+        located (and for existing noise to be spread evenly).
+        <br><br>
+        The deformable contouring works well on cardiomegaly since the starting position does not vary much for the heart. For the heart, the starting 
+        position is slightly to the left side of the patient’s chest’s center (skewed right on the X-ray). There are some X-rays that are unusually oriented, 
+        so that the patient's body is not centered (as mentioned we might use bounding boxes to help solve this problem).  The starting radius of the circle 
+        is 200 pixels. Going forward we can change the initial shape of the contour to make it more irregular instead of a circle so that it fits the shape 
+        of a heart better; this would lead to a more accurate contour that would circle around the heart. For the specific implementation, it was based on 
+        the class lecture and a technical report by D.N Davis. There are 400 points total in the contour. The alpha is .01 and beta is 2, gamma is 300, and 
+        we found that with 150 iterations, the contour reaches a point where it no longer changes. Using a number of iterations higher than this 
+        (200 iterations or greater) will lead to x-rays of normal hearts having a different contour with a smaller area, since their contour will continue 
+        to decrease in size more after 150 iterations. Each iteration, the 400 points move to minimize the energy function which is based on alpha, beta, 
+        and gamma.
+        <br><br>
+        It returns at most five centers, with the most likely location (one with the most votes) being marked differently. This method takes around 2-3 minutes to run; 
+        however, the results are quite accurate depending on the reference image. The accuracy of the results depends greatly on the reference image, so if the reference 
+        image does not go well with the inputted chest X-ray, then predicted locations may be incorrect. For our reference image, we used a cropped X-ray image of the 
+        nodule or mass with the noise removed. The reference image was not associated with the X-ray being tested. Overall, the results were accurate with 13 out of 
+        20 X-rays detecting the location of the ailment through the most likely location (center with most votes), and 15 out of 20 getting the location correct in the 
+        top 5 centers above the threshold.
+        <br><br>
+        Note: The referenced “noise” existing in the lungs is where lung tissue is dense or potentially other organs in that region are located. The lungs are darker than 
+        other organs (like the heart) because they block very little radiation. This is because the lungs are filled with air which blocks very little radiation; however, 
+        lung tissue is not uniformly distributed so some denser areas block slightly more radiation leading to the noise observed in the lung area. Like noise, the bones 
+        and heart are also referenced as causes for erroneous results.
+    </div>
+
+    <h3>Experiments and Results</h3>
+    <div class="text_indent">
+        <ul>
+        <ul>
+        <li>The Tensorflow/Keras model and PyTorch model were both considered - GitHub repositories for the code were looked at as cited in the references. The first experiment that was run was a straight test of the training efficiencies of both models by running the pre-given training code/steps for each model.&nbsp;</li>
+        <ul>
+        <li>Repository 1 (PyTorch) was far less computationally expensive and more efficient, while providing an AUROC (<span style="font-weight: bold;">Area Under a Receiver Operating Characteristic Curve</span>) of 0.836</li>
+        <li>Repository 2 (Keras/TensorFlow) was computationally more expensive and inefficient, while providing an AUROC of 0.841 (original AUROC as described in the CheXNet paper)</li>
+        <li>Based on the above, the training algorithm we used was inspired by the PyTorch repository - certain adjustments were made, including, but not limited to, weight update mechanism changes, addition of reinforcement learning as a mechanism to train, batch size modifications to prevent available GPUs from running out of memory</li>
+        </ul>
+        <li>The second experiment was purely testing the performance of both models on an untouched &ldquo;new&rdquo; set of images (from the NIH dataset and sub-sampled by the GitHub repositories themselves as previously un-tested images). The AUROCs that resulted were as follows:</li>
+        <ul>
+        <li>Repository 1 (PyTorch): 0.8108</li>
+        <li>Repository 2 (Keras/TensorFlow): 0.841</li>
+        <li>From the above, we see that the Keras/TensorFlow model was able to retain its original AUROC score and hence, accuracy, from the original testing on new images, showcasing its superior applicability.&nbsp;</li>
+        <li>Following from the above, the network was implemented using the architecture of the Keras/TensorFlow model as a basis. Large modifications were also made due to computational resource limitations. Improvements were made to the model&rsquo;s ability to detect certain illnesses, while experiencing loss in accuracy for some others (losses were relatively insignificant - order of magnitude of 0.001, while the&nbsp; improvements in accuracy - of the same order of magnitude - are far more important for improving upon the originally published CheXNet algorithm)</li>
+        </ul>
+        <li>The original CheXNet has 121 layers. This was deemed to be a computationally extravagant model (again, given the resources and time available to our group and for the scope of this project). The architecture was simplified to a 60 layer&nbsp; network, reducing the computation time by a factor of approximately 0.445. This was based on experimentation done with the resulting AUROC scores from 5 different simplified network configurations (shown in the table below).&nbsp;</li>
+        </ul>
+        </ul>
+        <div>
+        <table>
+        <tbody>
+        <tr>
+        <td><span style="font-weight: bold;">NUMBER OF LAYERS</span></td>
+        <td><span style="font-weight: bold;">AUROC</span></td>
+        </tr>
+        <tr>
+        <td>121</td>
+        <td>0.841</td>
+        </tr>
+        <tr>
+        <td>93</td>
+        <td>0.8381</td>
+        </tr>
+        <tr>
+        <td>71</td>
+        <td>0.8378</td>
+        </tr>
+        <tr>
+        <td>61</td>
+        <td>0.8371</td>
+        </tr>
+        <tr>
+        <td>50</td>
+        <td>0.821</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <ul>
+        <li>Based on the above, it was clear that further simplification (number of layers below 61) was undesirable, so the chosen architecture was a network with 60 layers - with an initial AUROC of 0.8370. Further simplification produced results that made a significant difference to the model&rsquo;s predictions and were deemed too inaccurate. Hence, the stated architecture was chosen.&nbsp;</li>
+        </ul>
+        <ul>
+        <li>Next experiment focused on determining the optimal number of training epochs necessary for our selected architecture. Unfortunately, some errors were made during the collection of data for this experiment, so a figure/table was omitted. However, the determined optimal number of epochs was <span style="font-style: italic;">6</span> (considering values ranged 4 to 10). Two factors were considered when determining this value: accuracy of resultant model and computational complexity/time of training. This value produced an optimal balance of the two factors.&nbsp;</li>
+        <ul>
+        <li>Modifications to the original training methods were made after initial experimentation using only the training set.&nbsp;</li>
+        <li>During each epoch, a batch of images was split up and used as follows:&nbsp;</li>
+        <ul>
+        <li>Epoch 1: pre-processed images - pre-processing as specified in the above pre-processing section (qualitative results below)</li>
+        <li>Epochs 2 &amp; 3: concentration of true positives - larger amount of&nbsp; images representing a true presence of the considered disease were consolidated into a training set for these epochs</li>
+        <li>Epochs 4, 5 &amp; 6: random sample from a larger training set</li>
+        <li>The above splits provided optimal results in terms of the predictions made by the resultant trained model.&nbsp;</li>
+        <li>For comparison, the PyTorch model utilized 5 training epochs in their pre-trained model that was provided in the GitHub repository (cited below).</li>
+        </ul>
+        </ul>
+        <li>The final experiment focused on the testing of the overall architecture on a random sample of 100 images from the testing dataset. The results of these predictions can be found in the Google Sheets document linked below:</li>
+        </ul>
+        <p><a href="https://drive.google.com/file/d/1-hyDlWrTdAriJ9Mz_GX4atin6OWVoN97/view?usp=sharing" target="_blank" rel="noopener"><span style="font-weight: bold;">Link to Predictions Made by Our Model</span></a></p>
+        <p>Keep in mind that these results will need to be thresholded to provide a final decision for the presence of a given illness. The confidence scores are relative rather than absolute.</p>
+        <ul>
+        <li>Additionally, the AUROC score of our model when compared to the AUROC score of the original CheXNet is displayed in the figure below:&nbsp;</li>
+        </ul>
+        <div>
+        <table>
+        <tbody>
+        <tr>
+        <td><span style="font-weight: bold;">LABEL</span></td>
+        <td><span style="font-weight: bold;">OUR MODEL AUROC</span></td>
+        <td><span style="font-weight: bold;">CheXNet AUROC</span></td>
+        </tr>
+        <tr>
+        <td>Cardiomegaly</td>
+        <td>0.9017</td>
+        <td>0.9248</td>
+        </tr>
+        <tr>
+        <td>Mass</td>
+        <td>0.8509</td>
+        <td>0.8676</td>
+        </tr>
+        <tr>
+        <td>Nodule</td>
+        <td>0.7658</td>
+        <td>0.7802</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <p>As shown above, our model&rsquo;s accuracy is slightly lower than the original CheXNet. However, considering the complexity of the CheXNet architecture 
+            being greater by a factor of 2 (in terms of number of layers used), these initial results are quite promising. For our final update, we aim to close 
+            the gap in accuracy even further, possibly surpassing the original accuracy of the CheXNet for the subset of considered illnesses. We will also compare 
+            the effects of using an entirely pre-processed dataset to re-train both our model and the original CheXNet to see the resultant changes in prediction 
+            accuracy.</p>
+        <br>
+        The following improvements/adjustments were made to the set-up of the model for the final update:
+        <ul>
+            <li>Adding another epoch of training to the model with 245 pre-processed images to increase the number of training epochs to 7.</li>
+            <li>Improving the original 6 epochs of training by adding in a more varied dataset to epochs 2 and 3 rather than a concentration of true positives to 
+                improve the network’s ability to detect a more varied range of outcomes.</li>
+            <li>Conditioning the training with a 25-75 split of negatives to positives to test the ability of the model to detect true negatives.
+                <ul>
+                    <li>Imperative to note that the detection of true positives is far more important than detection of true negatives</li>
+                    <li>However, original model was heavily trained to detect true positives so some balance was desirable to improve the overall accuracy of the 
+                        model (although for a biological-application of a neural network/deep-learning architecture, metrics such as precision, recall and the F1-score 
+                        prove to, in most cases, be far more valuable measures of the performance of the network than just a simple percentage accuracy or AUROC score.</li>
+                </ul>
+            </li>
+        </ul>
+        <br>
+        <table>
+        <tbody>
+        <tr>
+        <td><span style="font-weight: bold;">LABEL</span></td>
+        <td><span style="font-weight: bold;">OUR MODEL AUROC</span></td>
+        <td><span style="font-weight: bold;">CheXNet AUROC</span></td>
+        </tr>
+        <tr>
+        <td>Cardiomegaly</td>
+        <td>0.9119</td>
+        <td>0.9248</td>
+        </tr>
+        <tr>
+        <td>Mass</td>
+        <td>0.8570</td>
+        <td>0.8676</td>
+        </tr>
+        <tr>
+        <td>Nodule</td>
+        <td>0.7758</td>
+        <td>0.7802</td>
+        </tr>
+        </tbody>
+        </table>
+        <br>
+        Additionally, the experiments performed on the model have been expanded to include the F1- score. Before displaying the results of this experiment/test, it 
+        is necessary to understand why this was added. Rather than simply use an accuracy determination metric to assess the performance of our model, we believe an 
+        extended measure of success that is necessary is understanding how our distribution of inaccurate results are weighted between false positives and false negatives.
+        <br><br>
+        In the field of medicine, the following explanation provides an explanation for our reasoning behind adding the F-1 score: the danger of a doctor telling a patient 
+        they do not have a given chest disease when they actually have it is far greater than that of a doctor telling a patient they have a certain disease when they do not. 
+        For a successful commercial application of this model, it is important that false positives are minimized as well to prevent patients from having to undertake additional 
+        expenditure due to a false positive. However, while deciding to undertake this project, our goal was to create a tool that can be used as an extension to the available 
+        tools a doctor has when looking at a Chest X-Ray. In that context, minimizing false negatives is of far greater importance.
+        <br><br>
+        The following is a table with the F-1 scores for the same Labels as given in the table above for the AUROC:
+        <br><br>
+        <table>
+        <tbody>
+        <tr>
+        <td><span style="font-weight: bold;">LABEL</span></td>
+        <td><span style="font-weight: bold;">OUR MODEL F-1 SCORE</span></td>
+        </tr>
+        <tr>
+        <td>Cardiomegaly</td>
+        <td>0.8840</td>
+        </tr>
+        <tr>
+        <td>Mass</td>
+        <td>0.7600</td>
+        </tr>
+        <tr>
+        <td>Nodule</td>
+        <td>0.8144</td>
+        </tr>
+        </tbody>
+        </table>
+        <br>
+        An analysis of the above results can be done using the formula for the F-1 score/metric as displayed below:
+        <br><br>
+        <div class="image_container">
+            <img src="Images\f1_formula.png" alt="f1_formula" width="30%">
+            <br><br>
+            Additionally, the explanation of recall and precision must also be given.
+            <br>
+            <img src="Images\recall_vs_precision.png" alt="recall_vs_precision">
+        </div>
+        The above diagram gives a great visual explanation of the differences between precision and recall. As we can see, recall gives an idea of false 
+        negatives while precision gives an idea of false positives. While this explanation definitely trivializes the detail with which these metrics are 
+        created and evaluated, it is enough for an analysis of our results.
+        <br><br>
+        The F-1 score being lower than the accuracy, while certainly not ideal, is definitely to be expected. This is because the F-1 score takes into account 
+        the more “relevant” results. This is essentially why the metric has been stated to be a “better” measure of performance for our model.
+        <br><br>
+        The F-1 scores from the above table indicate that our model did not do the most optimal job of binary classification (positive and negative) for masses, 
+        while doing a great job in terms of the cardiomegalies and nodules. It is imperative that future work on this project aims to improve upon this F-1 score 
+        for masses, to be applied in a real-life scenario at some point. 
+        <br><br>
+        Furthermore, the F-1 score being greater than the AUROC score for nodules indicates that the classification of this algorithm of nodules (present or absent) 
+        was far better than the AUROC suggests. Essentially, it has minimized the errors in the relevant results.
+    </div>
+    <br>
+
+    <h3>Qualitative results</h3>
+    <div class="image_container">
+        Attempts of HSV quantization resulted in the following images, where k is the number of clusters used.
+        <br><br>
+        <img src="Images\hsv_test.png"><br>
+        <strong>Figure 1.</strong> Effects of using HSV quantization on X-ray input images.
+        <br><br>
+        Several values of k were used (ranging from 2 to 7 clusters), resulting in the following outputs.
+        <br><br>
+        <img src="Images\cluster_test.png"><br>
+        <strong>Figure 2.</strong> Results of using k=2,3,4,7 clusters for RGB quantization on X-ray input images.
+        <br><br>
+        <img src="Images\deform_contour_CM.png"><br>
+        <strong>Figure 3.</strong> Results of using alpha = .01, beta = 2, gamma = 300 and 200 iterations (red is final contour and blue is every 20th contour) 
+        for deformable contouring on two chest x-rays, one with a cardiomegaly (left) and one with no illness (right).
+        <br><br>
+        <img src="Images\Acc_DetectPoint_GHT.png"><br>
+        <strong>Figure 4.</strong> Results of using the generalized Hough Transform on an image with a cardiomegaly. The reference 
+        image depicts a mass occurrence in another image. The Accumulator is the result considering the input and reference images. 
+        The Detected point(s) image contains the thresholded points from the accumulator.
+    </div>
+
+    <h3>Conclusion</h3>
+    <div class="text_indent">
+        Our model, for a given image, outputs a set of probabilities each  indicating its confidence in the presence of a given illness from the set of illnesses 
+        we are considering. We have also considered two additional possibilities: the confidence is not high enough to indicate any of the considered illnesses, 
+        or the confidence measures indicate the presence of multiple illnesses. The first case could be handled by assigning a label to indicate that no illness 
+        was detected, and further verification of the model output should probably be performed. The second case was also considered because there exists a small 
+        amount of overlap within our dataset of the considered illnesses, and images falling under this case could be flagged for uncertainty. These images would 
+        be recommended for further analysis by a radiologist or an expert in thoracic pathology. We were not able to handle the above details within the scope of 
+        our project, but they are promising possibilities for further research and improvement. As discussed above, we have also utilized a larger amount of 
+        pre-processed images during the training of our model as well as refined the techniques we used for quantization and smoothing. We also attempted to use 
+        Hough transform and contouring to localize the area of interest in a given image prior to training in order to verify its assigned ground truth label and 
+        assist in feature extraction. These experiments have exposed our model to more relevant features that were extracted, and have allowed us to further 
+        explore how and to what extent the overall effectiveness of our model changes.
+        <br><br>
+        Additionally, we can conclude that our model may or may not perform well for a random set of Chest X-Rays outside this dataset. A focus for future work 
+        will need to be validating the results of this model on additional datasets for generalization testing and also ensuring that over-fitting has not taken place.
+        <br><br>
+        As discussed in the midterm update, we have developed a model that leverages  the F-1 score rather than simply the accuracy. It is becoming an increasingly 
+        popular measure of success for deep learning models as it filters the “relevant” results and then performs a measure of “accuracy” on those rather than the 
+        overall sample space of results (explained in further detail above).
+        <br><br>
+        To conclude, the model we have trained, while having improved upon various aspects of the original CheXNet, still requires a great degree of work to be even 
+        considered for deployment in a hospital/practical/commercial setting. However, the learning derived from the work we have done is as follows:
+        <ul>
+            <li>Simplification of the architecture could be done without significant loss of performance and without trivializing the extended application of the CheXNet</li>
+            <li>Pre-processed images definitely are better training images for the network, and this idea of pre-processing could be extended to other medical imaging architectures as well</li>
+            <li>Our model could further be extended to predict a far larger scope of chest diseases like the original CheXNet by slightly complexifying the architecture as well as providing 
+                a larger set of training data for each training epoch</li>
+            <li>Additional work could be done on refining the architecture in terms of potential further simplifications - we were able to bring down the layer count from 120 to approximately 
+                60….a reduction of almost 50% - and this was without a significant loss in the performance</li>
+            <li>With greater time and effort, a better/further simplification can be done as commercially deploying systems such as deep learning architectures require models to be cost-efficient 
+                which by extension requires them to be computationally efficient and minimally complex</li>
+        </ul>
+    <br><br>
+    <h3>References</h3>
+    <div style="text-indent: -36px; padding-left: 36px;">
+        <p>Chou, Bruce. “ChexNet-Keras.” Github Repository, github.com/brucechou1983/CheXNet-Keras.</p>
+        <p>D.N. Davis. <em>The Application Of Active Contour Models To MR and CT Images.</em> Technical report, 
+            Medical Vision Group, University of Birmingham, Edgbaston, Birmingham, UK, 1995.</p>
+        <p>“Enlarged Heart.” <em>Mayo Clinic</em> , 16 Jan. 2020, https://www.mayoclinic.org/diseases-conditions/enlarged-heart/symptoms-causes/syc-20355436.</p>
+        <p>Irvin, Jeremy et al. “CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison.” Proceedings of the AAAI 
+            Conference on Artificial Intelligence 33 (2019): 590–597. Crossref. Web.</p>
+        <p>“Lung Masses And Growths.” <em>Beaumont Health</em>, https://www.beaumont.org/conditions/lung-masses-and-growths. Accessed 30 Sept. 2020.</p>
+        <p>“Pulmonary Nodules.” <em>University of Rochester Medical Center</em>, 
+            https://www.urmc.rochester.edu/encyclopedia/content.aspx?contenttypeid=22&contentid=pulmonarynodules. Accessed 30 Sept. 2020. </p>
+        <p>Summers, Ronald. <em>NIH Chest X-Ray Dataset of 14 Common Thorax Diseases</em>. 5 Nov. 2018. 
+            NIH, https://nihcc.app.box.com/v/ChestXray-NIHCC/file/220660789610.</p>
+        <p>Zech, J. Reproduce-Chexnet. GitHub/GitHub Repository, 2018, github.com/jrzech/reproduce-chexnet.</p>
+    </div>
+    </div>
+
+  <hr>
+</div>
+</div>
+
+<br><br>
+
+</body></html>
